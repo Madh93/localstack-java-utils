@@ -27,6 +27,18 @@ public @interface LocalstackDockerProperties {
     Class<? extends IEnvironmentVariableProvider> environmentVariableProvider() default DefaultEnvironmentVariableProvider.class;
 
     /**
+     * Used to set the port number for the edge service in execution time, the main entry point for all API invocations.
+     * Implement a class that provides a custom port number to override the default edge port value.
+     */
+    Class<? extends IPortResolver> edgePortResolver() default EdgePortResolver.class;
+
+    /**
+     * Used to set the port number for the elasticsearch service in execution time. Implement a class that provides a
+     * custom port number to override the default elasticsearch port value.
+     */
+    Class<? extends IPortResolver> elasticSearchPortResolver() default ElasticSearchPortResolver.class;
+
+    /**
      * Determines if a new image is pulled from the docker repo before the tests are run.
      */
     boolean pullNewImage() default false;
@@ -52,12 +64,13 @@ public @interface LocalstackDockerProperties {
     String imageTag() default "";
 
     /**
-     * Port number for the edge service, the main entry point for all API invocations
+     * Port number for the edge service, the main entry point for all API invocations. This parameter is ignored when
+     * edgePortResolver is used.
      */
     String portEdge() default "4566";
 
     /**
-     * Port number for the elasticsearch service
+     * Port number for the elasticsearch service. This parameter is ignored when elasticSearchPortResolver is used.
      */
     String portElasticSearch() default "4571";
 

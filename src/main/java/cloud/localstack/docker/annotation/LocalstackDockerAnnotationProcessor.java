@@ -32,12 +32,12 @@ public class LocalstackDockerAnnotationProcessor {
             .environmentVariables(this.getEnvironments(properties))
             .externalHostName(this.getExternalHostName(properties))
             .portMappings(this.getCustomPortMappings(properties))
+            .portEdge(this.getEdgePort(properties))
+            .portElasticSearch(this.getElasticSearchPort(properties))
             .pullNewImage(properties.pullNewImage())
             .ignoreDockerRunErrors(properties.ignoreDockerRunErrors())
             .randomizePorts(properties.randomizePorts())
             .imageTag(StringUtils.isEmpty(properties.imageTag()) ? null : properties.imageTag())
-            .portEdge(properties.portEdge())
-            .portElasticSearch(properties.portElasticSearch())
             .useSingleDockerContainer(properties.useSingleDockerContainer())
             .build();
     }
@@ -84,4 +84,31 @@ public class LocalstackDockerAnnotationProcessor {
         }
     }
 
+    private String getEdgePort(final LocalstackDockerProperties properties) {
+        try {
+            IPortResolver portResolver = properties.edgePortResolver().newInstance();
+            String resolvedPort = portResolver.getPort();
+
+            final String port = resolvedPort == "4566" ? properties.portEdge() : resolvedPort;
+
+            LOG.fine("Edge port is set to: " + port);
+            return port;
+        } catch (InstantiationException | IllegalAccessException ex) {
+            throw new IllegalStateException("Unable to get port", ex);
+        }
+    }
+
+    private String getElasticSearchPort(final LocalstackDockerProperties properties) {
+        try {
+            IPortResolver portResolver = properties.elasticSearchPortResolver().newInstance();
+            String resolvedPort = portResolver.getPort();
+
+            final String port = resolvedPort == "4571" ? properties.portElasticSearch() : resolvedPort;
+
+            LOG.fine("ElasticSearch port is set to: " + port);
+            return port;
+        } catch (InstantiationException | IllegalAccessException ex) {
+            throw new IllegalStateException("Unable to get port", ex);
+        }
+    }
 }
